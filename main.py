@@ -10,19 +10,18 @@ def handle_media(filename: Path, target_folder: Path) -> None:
     filename.replace(target_folder / normalize(filename.name))
 
 
-def handle_arhive(archive_path: Path, target_dir: Path) -> None:
-    target_dir.mkdir(exist_ok=True, parents=True)
-    archive_name = archive_path.stem
-    archive_dir = target_dir / archive_name
-    archive_dir.mkdir(exist_ok=True)
-
+def handle_arhive(filename: Path, target_folder: Path) -> None:
+    target_folder.mkdir(exist_ok=True, parents=True)
+    folder_for_file = target_folder / \
+        normalize(filename.name.replace(filename.suffix, ''))
+    folder_for_file.mkdir(exist_ok=True, parents=True)
     try:
-        shutil.unpack_archive(str(archive_path.resolve()),
-                              str(archive_dir.resolve()),
-                              format='gztar')
-    except shutil.ReadError as e:
-        archive_dir.rmdir()
-        print(f"Unable to extract archive {archive_path}: {e}")
+        shutil.unpack_archive(str(filename.resolve()),
+                              str(folder_for_file.resolve()))
+    except shutil.ReadError:
+        folder_for_file.rmdir()
+        return None
+    filename.unlink()
 
 
 def handle_folder(folder: Path) -> None:
